@@ -75,6 +75,17 @@ class LocationTest {
         Exception exception = assertThrows(NullPointerException.class, () -> from.travelTime(to));
     }
 
+    @Test
+    @DisplayName("Test travel time with invalid location throws exception")
+    void testLocation_travelTime_InvalidLocation_ThrowsException() {
+        // Arrange
+        String invalidLocation = "D";
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> Location.valueOf(invalidLocation));
+        assertEquals("No enum constant models.Location.D", exception.getMessage());
+    }
+
     // Boundary Test Cases
     @Test
     @DisplayName("Test travel time between A and B handles boundary condition")
@@ -166,4 +177,6 @@ class LocationTest {
         assertEquals(2.0, travelTimeAB, "Travel time from A to B should be 2.0.");
         assertEquals(2.0, travelTimeBA, "Travel time from B to A should be 2.0.");
     }
+
+
 }

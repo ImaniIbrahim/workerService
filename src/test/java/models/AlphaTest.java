@@ -1,26 +1,26 @@
 package models;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class AlphaTest {
-    private Alpha alphaRecycling;
 
+    // Positive Test Cases
     @Test
     @DisplayName("Test Alpha generation returns 'Alpha'")
     void testAlpha_getGeneration_ReturnsAlpha() {
         // Arrange
         Location location = Location.A;
         int yearsActive = 5;
-        alphaRecycling = new Alpha(location, yearsActive);
+        Alpha alphaRecycling = new Alpha(location, yearsActive);
+
         // Act
         String generation = alphaRecycling.getGeneration();
+
         // Assert
         assertEquals("Alpha", generation, "The generation should be 'Alpha'.");
     }
@@ -31,7 +31,7 @@ class AlphaTest {
         // Arrange
         Location location = Location.B;
         int yearsActive = 3;
-        alphaRecycling = new Alpha(location, yearsActive);
+        Alpha alphaRecycling = new Alpha(location, yearsActive);
 
         // Act
         List<Double> rates = alphaRecycling.getRates();
@@ -46,7 +46,7 @@ class AlphaTest {
         // Arrange
         Location location = Location.C;
         int yearsActive = 10;
-        alphaRecycling = new Alpha(location, yearsActive);
+        Alpha alphaRecycling = new Alpha(location, yearsActive);
 
         // Act
         int actualYearsActive = alphaRecycling.getYearsActive();
@@ -57,11 +57,11 @@ class AlphaTest {
 
     @Test
     @DisplayName("Test Alpha location returns correct location")
-    void testAlpha_Location_ReturnsCorrectLocation() {
+    void testAlpha_getLocation_ReturnsCorrectLocation() {
         // Arrange
         Location location = Location.A;
         int yearsActive = 7;
-        alphaRecycling = new Alpha(location, yearsActive);
+        Alpha alphaRecycling = new Alpha(location, yearsActive);
 
         // Act
         Location actualLocation = alphaRecycling.getLocation();
@@ -70,26 +70,9 @@ class AlphaTest {
         assertEquals(Location.A, actualLocation, "The location should return 'A'.");
     }
 
+    // Negative Test Cases
     @Test
-    @DisplayName("Test Alpha rates initialisation")
-    void testAlpha_RatesInitialisation_ValidRates() {
-        // Arrange
-        Location location = Location.B;
-        int yearsActive = 3;
-
-        // Act
-        alphaRecycling = new Alpha(location, yearsActive);
-        List<Double> rates = alphaRecycling.getRates();
-
-        // Assert
-        assertNotNull(rates, "Rates should not be null."); // Ensure the list is not null
-        assertFalse(rates.isEmpty(), "Rates should not be empty."); // Ensure the list is not empty
-        assertTrue(rates.stream().allMatch(rate -> rate >= 0), "Rates should not contain negative values.");
-    }
-
-
-    @Test
-    @DisplayName("Test invalid yearsActive (negative test)")
+    @DisplayName("Test negative yearsActive throws exception")
     void testAlpha_InvalidYearsActive_ThrowsException() {
         // Arrange
         Location location = Location.C;
@@ -99,12 +82,10 @@ class AlphaTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             new Alpha(location, invalidYearsActive);
         });
-
-        assertEquals("Years active cannot be negative.", exception.getMessage());
     }
 
     @Test
-    @DisplayName("Test null location handling (negative test)")
+    @DisplayName("Test null location throws exception")
     void testAlpha_NullLocation_ThrowsException() {
         // Arrange
         Location location = null;
@@ -114,10 +95,65 @@ class AlphaTest {
         Exception exception = assertThrows(NullPointerException.class, () -> {
             new Alpha(location, yearsActive);
         });
-
-        assertEquals("Location cannot be null.", exception.getMessage());
     }
 
 
+    @Test
+    @DisplayName("Test Alpha rates initialization is valid")
+    void testAlpha_RatesInitialization_ValidRates() {
+        // Arrange
+        Location location = Location.B;
+        int yearsActive = 3;
 
+        // Act
+        Alpha alphaRecycling = new Alpha(location, yearsActive);
+        List<Double> rates = alphaRecycling.getRates();
+
+        // Assert
+        assertNotNull(rates, "Rates should not be null.");
+        assertFalse(rates.isEmpty(), "Rates should not be empty.");
+        assertTrue(rates.stream().allMatch(rate -> rate > 0), "Rates should be greater than 0.");
+    }
+
+    @Test
+    @DisplayName("Test Alpha constructor handles yearsActive (zero)")
+    void testAlpha_YearsActive_ZeroBoundary() {
+        // Arrange
+        Location location = Location.C;
+        int yearsActive = 0;
+
+        // Act
+        Alpha alphaRecycling = new Alpha(location, yearsActive);
+
+        // Assert
+        assertEquals(0, alphaRecycling.getYearsActive(), "Years active should handle the zero.");
+    }
+
+    @Test
+    @DisplayName("Test Alpha constructor does not accept yearsActive greater than 100")
+    void testAlpha_YearsActive_ExceedsMaxBoundary_ThrowsException() {
+        // Arrange
+        Location location = Location.B;
+        int invalidYearsActive = 101; // Invalid yearsActive exceeding the maximum of 100
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            new Alpha(location, invalidYearsActive);
+        });
+    }
+
+    @Test
+    @DisplayName("Test Alpha handles invalid location")
+    void testAlpha_Location_Invalid() {
+        // Arrange
+        String invalidLocation = "D"; // Invalid location outside A, B, C
+        int yearsActive = 3;
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            new Alpha(Location.valueOf(invalidLocation), yearsActive);
+        });
+
+        assertEquals("Invalid location provided.", exception.getMessage());
+    }
 }

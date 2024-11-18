@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HistoricTest {
 
-    private Historic historic;
-
     // Positive Test Cases
     @Test
     @DisplayName("Test Historic constructor initializes remaining waste correctly")
@@ -18,7 +16,7 @@ class HistoricTest {
         double initialWaste = 2000.0;
 
         // Act
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Assert
         assertEquals(2000.0, historic.getRemainingWaste(), "Remaining waste should be initialized to the initial waste.");
@@ -33,7 +31,7 @@ class HistoricTest {
         double initialWaste = 1250.0;
 
         // Act
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Assert
         assertEquals(625.0, historic.getPlasticGlass(), "Plastic/Glass waste should be 50% of total waste at the threshold.");
@@ -49,7 +47,7 @@ class HistoricTest {
         double initialWaste = 1249.0;
 
         // Act
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Assert
         assertEquals(624.5, historic.getPlasticGlass(), "Plastic/Glass waste should be 50% of total waste below the threshold.");
@@ -65,15 +63,14 @@ class HistoricTest {
         double initialWaste = 1251.0;
 
         // Act
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Assert
-        double delta = 0.0001; // Small margin of error for floating-point comparisons
+        double delta = 0.0001;
         assertEquals(375.3, historic.getPlasticGlass(), delta, "Plastic/Glass waste should be 30% of total waste above the threshold.");
         assertEquals(625.5, historic.getPaper(), delta, "Paper waste should be 50% of total waste.");
         assertEquals(250.2, historic.getMetallic(), delta, "Metallic waste should be 20% of total waste above the threshold.");
     }
-
 
     // Negative Test Cases
     @Test
@@ -87,6 +84,7 @@ class HistoricTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             new Historic(location, invalidWaste);
         });
+        assertEquals("Waste cannot be negative.", exception.getMessage());
     }
 
     @Test
@@ -100,6 +98,21 @@ class HistoricTest {
         Exception exception = assertThrows(NullPointerException.class, () -> {
             new Historic(location, initialWaste);
         });
+        assertEquals("Location cannot be null.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Test Historic constructor with invalid location throws exception")
+    void testHistoric_constructor_InvalidLocation_ThrowsException() {
+        // Arrange
+        String invalidLocation = "D";
+        double initialWaste = 1000.0;
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            new Historic(Location.valueOf(invalidLocation), initialWaste);
+        });
+        assertEquals("Invalid location provided.", exception.getMessage());
     }
 
     // Equivalent Partitioning Test Cases
@@ -109,7 +122,7 @@ class HistoricTest {
         // Arrange
         Location location = Location.C;
         double initialWaste = 2000.0;
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Act
         historic.setRemainingWaste(1000.0);
@@ -125,7 +138,7 @@ class HistoricTest {
         // Arrange
         Location location = Location.A;
         double initialWaste = 2000.0;
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Act
         historic.setPlasticGlass(600.0);
@@ -141,7 +154,7 @@ class HistoricTest {
         // Arrange
         Location location = Location.B;
         double initialWaste = 3000.0;
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Act
         historic.setPaper(1000.0);
@@ -157,7 +170,7 @@ class HistoricTest {
         // Arrange
         Location location = Location.C;
         double initialWaste = 4000.0;
-        historic = new Historic(location, initialWaste);
+        Historic historic = new Historic(location, initialWaste);
 
         // Act
         historic.setMetallic(500.0);
