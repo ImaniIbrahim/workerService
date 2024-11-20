@@ -154,6 +154,7 @@ class AlphaTest {
             new Alpha(Location.valueOf(invalidLocation), yearsActive);
         });
 
-        assertEquals("Invalid location provided.", exception.getMessage());
+        assertEquals("Invalid location.", exception.getMessage());
+        //assertEquals("No enum constant models.Location.D", exception.getMessage());
     }
 }
