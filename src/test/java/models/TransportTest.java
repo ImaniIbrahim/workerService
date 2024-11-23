@@ -170,4 +170,48 @@ class TransportTest {
         // Assert
         assertTrue(totalWaste > 0, "Total waste should be valid for edge case values.");
     }
+
+    @Test
+    @DisplayName("Test Transport travel time symmetry between B and C")
+    void testTransport_TravelTime_Symmetric_BetweenBandC() {
+        // Arrange
+        Transport transportBC = new Transport(Location.B, Location.C);
+        Transport transportCB = new Transport(Location.C, Location.B);
+
+        // Act
+        double travelTimeBC = transportBC.getTravelTime();
+        double travelTimeCB = transportCB.getTravelTime();
+
+        // Assert
+        assertEquals(travelTimeBC, travelTimeCB,
+                "Travel time between B and C should be symmetric");
+        assertEquals(3.0, travelTimeBC,
+                "Travel time from B to C should be 3.0.");
+        assertEquals(3.0, travelTimeCB,
+                "Travel time from C to B should be 3.0.");
+    }
+
+
+    @Test
+    @DisplayName("Test Transport travel time symmetry between A and C")
+    void testTransport_TravelTime_Symmetric_BetweenAandC() {
+        // Arrange
+        Transport transportAC = new Transport(Location.A, Location.C);
+        Transport transportCA = new Transport(Location.C, Location.A);
+
+        // Act
+        double travelTimeAC = transportAC.getTravelTime();
+        double travelTimeCA = transportCA.getTravelTime();
+
+        // Assert
+        assertEquals(travelTimeAC, travelTimeCA,
+                "Travel time between A and C should be symmetric");
+        assertEquals(4.0, travelTimeAC,
+                "Travel time from A to C should be 4.0.");
+        assertEquals(4.0, travelTimeCA,
+                "Travel time from C to A should be 4.0.");
+    }
+
+
+
 }
