@@ -1,20 +1,12 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import models.Historic;
-import models.Location;
-import models.Recycling;
-import models.Alpha;
-import models.Beta;
-import models.Gamma;
+import models.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
-
-
-
-
 
 class UtilsTest {
 
@@ -24,7 +16,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres with metallic waste")
-    void testFindViableCentres_WithMetallicWaste() {
+    void testFindViableCentres_WithMetallicWaste_ReturnsAlphaAndBeta() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0); // Contains metallic waste
         historic.setMetallic(1000.0); // Set metallic waste explicitly
@@ -44,7 +36,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres without metallic waste")
-    void testFindViableCentres_WithoutMetallicWaste() {
+    void testFindViableCentres_WithoutMetallicWaste_ExcludesGamma() {
         // Arrange
         Historic historic = new Historic(Location.B, 3000.0); // No metallic waste
         historic.setMetallic(0.0); // Set metallic waste explicitly to zero
@@ -65,7 +57,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres with travel time boundary")
-    void testFindViableCentres_TravelTimeBoundary_OneViableCentre() {
+    void testFindViableCentres_TravelTimeBoundary_ReturnsBetaOnly() {
         // Arrange
         Historic historic = new Historic(Location.C, 2000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -83,7 +75,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres when all are excluded due to travel time")
-    void testFindViableCentres_AllExcludedByTravelTime() {
+    void testFindViableCentres_ExcludedByTravelTime_ReturnsEmpty() {
         // Arrange
         Historic historic = new Historic(Location.A, 1500.0);
         List<Recycling> centres = new ArrayList<>();
@@ -99,7 +91,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres with empty candidate list")
-    void testFindViableCentres_EmptyCandidates() {
+    void testFindViableCentres_EmptyCandidateList_ReturnsEmpty() {
         // Arrange
         Historic historic = new Historic(Location.B, 2500.0);
         List<Recycling> centres = new ArrayList<>(); // Empty list
@@ -113,7 +105,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres with null candidate list")
-    void testFindViableCentres_NullCandidates() {
+    void testFindViableCentres_NullCandidates_ThrowsNullPointerException() {
         // Arrange
         Historic historic = new Historic(Location.A, 3000.0);
 
@@ -123,12 +115,11 @@ class UtilsTest {
         });
         // Assert exception message (if applicable)
         assertEquals("Candidate centres cannot be null.", exception.getMessage());
-
     }
 
     @Test
     @DisplayName("Test viable centres with null historic site")
-    void testFindViableCentres_NullHistoric() {
+    void testFindViableCentres_NullHistoricSite_ThrowsNullPointerException() {
         // Arrange
         List<Recycling> centres = new ArrayList<>();
         centres.add(new Alpha(Location.A, 5));
@@ -142,10 +133,9 @@ class UtilsTest {
         assertEquals("Historic site cannot be null.", exception.getMessage());
     }
 
-
     @Test
     @DisplayName("Test viable centres: Boundary travel time = 3 hours")
-    void testFindViableCentres_TravelTimeBoundary_TowViableCentres() {
+    void testFindViableCentres_TravelTimeBoundary_ReturnsTwoCentres() {
         // Arrange
         Historic historic = new Historic(Location.C, 3000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -165,7 +155,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test viable centres: Complex scenario with metallic waste")
-    void testFindViableCentres_ComplexScenario_WithMetallicWaste() {
+    void testFindViableCentres_ComplexWithMetallicWaste_ReturnsAlphaAndBeta() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0); // 5000 cubic meters total waste
         historic.setMetallic(1000.0); // Metallic waste > 0
@@ -185,15 +175,14 @@ class UtilsTest {
         assertTrue(viableCentres.stream().anyMatch(c -> c instanceof Beta), "Beta centre should be viable.");
         assertFalse(viableCentres.stream().anyMatch(c -> c instanceof Gamma), "Gamma centre should not be viable.");
     }
-
-
 // Unit tests for findViableCentres business logic [End]
-    //===============================================================================
+    // =======================================================
+// Unit tests for findOptimalCentre business logic [Start]
 
 
     @Test
     @DisplayName("Test optimal centre is nearest")
-    void testFindOptimalCentre_NearestCentre() {
+    void testFindOptimalCentre_Nearest_ReturnsNearestCentre() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -211,7 +200,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test optimal centre with same distance but higher generation")
-    void testFindOptimalCentre_SameDistance_HigherGeneration() {
+    void testFindOptimalCentre_SameDistanceHigherGeneration_ReturnsGammaCentre() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -227,7 +216,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test optimal centre with same distance and generation but fewer years active")
-    void testFindOptimalCentre_SameDistance_SameGeneration_FewerYearsActive() {
+    void testFindOptimalCentre_SameDistanceSameGenerationFewerYears_ReturnsFewerYearsCentre() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -243,7 +232,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test optimal centre with multiple highest priority centres")
-    void testFindOptimalCentre_MultipleHighestPriorityCentres() {
+    void testFindOptimalCentre_MultipleHighestPriorityCentres_ReturnsOneCentre() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -260,7 +249,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test findOptimalCentre throws exception with null candidate list")
-    void testFindOptimalCentre_NullCandidates() {
+    void testFindOptimalCentre_NullCandidateList_ThrowsException() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
 
@@ -271,7 +260,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test findOptimalCentre throws exception with null historic site")
-    void testFindOptimalCentre_NullHistoric() {
+    void testFindOptimalCentre_NullHistoricSite_ThrowsException() {
         // Arrange
         List<Recycling> centres = new ArrayList<>();
         centres.add(new Alpha(Location.A, 5));
@@ -283,7 +272,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test optimal centre when no viable centres are available")
-    void testFindOptimalCentre_NoViableCentres() {
+    void testFindOptimalCentre_NoViableCentres_ReturnsNull() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         List<Recycling> centres = new ArrayList<>();
@@ -298,7 +287,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test optimal centre with metallic waste and viable Gamma centre")
-    void testFindOptimalCentre_WithMetallicWaste() {
+    void testFindOptimalCentre_WithMetallicWaste_ReturnsGammaCentre() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         historic.setMetallic(1000.0); // Explicitly set metallic waste
@@ -314,7 +303,7 @@ class UtilsTest {
 
     @Test
     @DisplayName("Test optimal centre without metallic waste excludes Gamma")
-    void testFindOptimalCentre_WithoutMetallicWaste() {
+    void testFindOptimalCentre_WithoutMetallicWaste_ReturnsBetaCentre() {
         // Arrange
         Historic historic = new Historic(Location.A, 5000.0);
         historic.setMetallic(0.0); // No metallic waste
@@ -330,11 +319,154 @@ class UtilsTest {
     }
 
 
+    // Unit tests for findOptimalCentre business logic [End]
+    // =======================================================
+    // Unit tests for findNearestCentres business logic [Start]
 
+    @Test
+    @DisplayName("Find nearest centre: Single candidate")
+    void testFindNearestCentres_SingleCandidate_ReturnsSingleCentre() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 2000.0);
+        List<Recycling> candidateCentres = List.of(new Alpha(Location.B, 5));
 
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
 
+        // Assert
+        assertEquals(1, nearestCentres.size(), "Only one centre should be returned.");
+        assertEquals(candidateCentres.get(0), nearestCentres.get(0), "The single candidate should be returned.");
+    }
 
+    @Test
+    @DisplayName("Find nearest centre: Multiple candidates, one nearest")
+    void testFindNearestCentres_MultipleCandidates_OneNearest() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 2000.0);
+        List<Recycling> candidateCentres = List.of(
+                new Alpha(Location.B, 5), // 2 hours
+                new Beta(Location.C, 8)   // 4 hours
+        );
 
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
+
+        // Assert
+        assertEquals(1, nearestCentres.size(), "Only one nearest centre should be returned.");
+        assertTrue(nearestCentres.get(0) instanceof Alpha, "The nearest centre should be Alpha.");
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: Multiple candidates with same travel time")
+    void testFindNearestCentres_MultipleCandidates_SameTravelTime() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 2000.0);
+        List<Recycling> candidateCentres = List.of(
+                new Alpha(Location.B, 5), // 2 hours
+                new Beta(Location.B, 3)   // 2 hours
+        );
+
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
+
+        // Assert
+        assertEquals(2, nearestCentres.size(), "Both centres with the same travel time should be returned.");
+        assertTrue(nearestCentres.stream().anyMatch(c -> c instanceof Alpha), "Alpha should be in the result.");
+        assertTrue(nearestCentres.stream().anyMatch(c -> c instanceof Beta), "Beta should be in the result.");
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: Empty candidate list")
+    void testFindNearestCentres_EmptyCandidates_ReturnsEmptyList() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 2500.0);
+        List<Recycling> candidateCentres = Collections.emptyList();
+
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
+
+        // Assert
+        assertTrue(nearestCentres.isEmpty(), "No centres should be returned for an empty candidate list.");
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: Null candidate list throws exception")
+    void testFindNearestCentres_NullCandidates_ThrowsException() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 3000.0);
+
+        // Act & Assert
+        Exception exception = assertThrows(NullPointerException.class, () -> Utils.findNearestCentres(historic, null));
+        assertEquals("Candidate centres cannot be null.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: Null historic site throws exception")
+    void testFindNearestCentres_NullHistoric_ThrowsException() {
+        // Arrange
+        List<Recycling> candidateCentres = List.of(new Alpha(Location.B, 5));
+
+        // Act & Assert
+        Exception exception = assertThrows(NullPointerException.class, () -> Utils.findNearestCentres(null, candidateCentres));
+        assertEquals("Historic site cannot be null.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: All candidates beyond travel limit")
+    void testFindNearestCentres_AllBeyondLimit_ReturnsEmptyList() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 2500.0);
+        List<Recycling> candidateCentres = List.of(
+                new Alpha(Location.C, 7), // 4-hour travel
+                new Beta(Location.C, 10)  // 4-hour travel
+        );
+
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
+
+        // Assert
+        assertTrue(nearestCentres.isEmpty(), "No centres should be returned when all candidates exceed the travel time.");
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: Boundary travel time = Minimum")
+    void testFindNearestCentres_BoundaryTravelTime_ReturnsAlphaCentre() {
+        // Arrange
+        Historic historic = new Historic(Location.B, 3000.0);
+        List<Recycling> candidateCentres = List.of(
+                new Alpha(Location.B, 8),  // 1-hour travel
+                new Beta(Location.C, 6),  // 3-hour travel
+                new Gamma(Location.A, 7)  // 2-hour travel
+        );
+
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
+
+        // Assert
+        assertEquals(1, nearestCentres.size(), "Only one centre should match the minimum travel time.");
+        assertTrue(nearestCentres.stream().anyMatch(c -> c instanceof Alpha), "Alpha should be the nearest centre.");
+    }
+
+    @Test
+    @DisplayName("Find nearest centre: Centres in the same location as historic site")
+    void testFindNearestCentres_CentresInSameLocation() {
+        // Arrange
+        Historic historic = new Historic(Location.A, 2000.0);
+        List<Recycling> candidateCentres = List.of(
+                new Alpha(Location.A, 5),
+                new Beta(Location.A, 3)
+        );
+
+        // Act
+        List<Recycling> nearestCentres = Utils.findNearestCentres(historic, candidateCentres);
+
+        // Assert
+        assertEquals(2, nearestCentres.size(), "All centres in the same location should be returned.");
+    }
+
+    // Unit tests for findNearestCentres business logic [End]
+    // =======================================================
+    // Unit tests for findNearestCentres business logic [Start]
 
 
 
